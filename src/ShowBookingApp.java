@@ -80,6 +80,9 @@ public class ShowBookingApp {
 
     private static void buyerCmds(Scanner scanner, Buyer buyer, List<Show> shows) {
         while (true) {
+            int showNumber = 0;
+            Show show = null;
+
             System.out.println("\nBuyer Commands:");
             System.out.println("Availablility, Book, Cancel");
             System.out.println("Enter 3 to return.");
@@ -92,11 +95,16 @@ public class ShowBookingApp {
 
             switch (command.toLowerCase()) {
                 case "availability":
-                    int showNumber = Integer.parseInt(commandParts[1]);
-                    Show show = findShowByNumber(shows, showNumber);
+                    showNumber = Integer.parseInt(commandParts[1]);
+                    show = findShowByNumber(shows, showNumber);
                     buyer.checkSeatAvailability(show);
                     break;
                 case "book":
+                    showNumber = Integer.parseInt(commandParts[1]);
+                    show = findShowByNumber(shows, showNumber);
+                    String phone = commandParts[2];
+                    String seatsPerRow = commandParts[3];
+                    buyer.bookSeats(show, phone, seatsPerRow);
                     break;
                 case "cancel":
                     break;
