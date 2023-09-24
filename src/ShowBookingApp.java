@@ -43,9 +43,6 @@ public class ShowBookingApp {
     }
 
     private static void adminCmds(Scanner scanner, Admin admin, List<Show> shows) {
-        // Implement the Admin menu options here
-        System.out.println("Admin menu placeholder.");
-
         while (true) {
             System.out.println("\nAdmin Commands:");
             System.out.println("Setup or View shows e.g., 'Setup 1 10 5 120' or 'View 1'");

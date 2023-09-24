@@ -13,7 +13,6 @@ public class Buyer {
         // Check if the show exists
         if (show == null) {
             System.out.println("Show not found.");
-            return;
         }
 
         System.out.println("Available seat numbers for Show " + show.getShowNumber() + ":");
@@ -23,61 +22,54 @@ public class Buyer {
             System.out.println("No seats available.");
         } else {
             for (String seatLabel : availableSeats) {
-                System.out.println(seatLabel);
+                System.out.print(seatLabel.toUpperCase() + " ");
             }
         }
     }
 
-    public boolean bookSeats(Show show, String phone, String seatLabelsToBookParam) {
+    public void bookSeats(Show show, String phone, String seatLabelsToBookParam) {
 
         // Check if the show exists
         if (show == null) {
             System.out.println("Show not found.");
-            return false;
         }
 
         List<String> seatLabelsToBook = getSeatsToBook(seatLabelsToBookParam);
 
         if (seatLabelsToBook == null) {
             System.out.println("Please enter your seats again..");
-            return false;
         }
 
         // Check if the provided seat labels are valid and available
         for (String seatLabel : seatLabelsToBook) {
             if (!isValidSeatLabel(seatLabel)) {
                 System.out.println("Invalid seat label format: " + seatLabel);
-                return false;
             }
 
             if (!isSeatAvailable(show, seatLabel)) {
                 System.out.println("Seat " + seatLabel + " is not available.");
-                return false;
             }
         }
 
         // Check if the phone number has already booked a ticket for this show
         if (hasExistingBooking(show, phone)) {
             System.out.println("You have already booked a ticket for this show.");
-            return false;
+        } else {
+            // Generate a unique ticket number
+            String ticketNumber = generateTicketNumber();
+
+            // Create a new ticket with the provided seat labels
+            Ticket ticket = new Ticket(ticketNumber, phone, seatLabelsToBook);
+
+            // Add the ticket to the show's list of tickets
+            show.addTicket(ticket);
+
+            // Display the ticket details
+            System.out.println("Ticket booked successfully.");
+            System.out.println("Ticket Number: " + ticketNumber);
+            System.out.println("Buyer Phone: " + phone);
+            System.out.println("Seat Numbers: " + String.join(", ", seatLabelsToBook).toUpperCase());
         }
-
-        // Generate a unique ticket number
-        String ticketNumber = generateTicketNumber();
-
-        // Create a new ticket with the provided seat labels
-        Ticket ticket = new Ticket(ticketNumber, phone, seatLabelsToBook);
-
-        // Add the ticket to the show's list of tickets
-        show.addTicket(ticket);
-
-        // Display the ticket details
-        System.out.println("Ticket booked successfully.");
-        System.out.println("Ticket Number: " + ticketNumber);
-        System.out.println("Buyer Phone: " + phone);
-        System.out.println("Seat Numbers: " + String.join(", ", seatLabelsToBook).toUpperCase());
-
-        return true;
     }
 
     // Helper methods
@@ -96,9 +88,8 @@ public class Buyer {
     }
 
     private List<String> generateSeats(Show show) {
-        // Implement logic to generate seat labels based on the number of rows and seats per row
         List<String> seats = new ArrayList<>();
-        for (char row = 'A'; row < 'A' + show.getNumRows(); row++) {
+        for (char row = 'a'; row < 'a' + show.getNumRows(); row++) {
             for (int seatNum = 1; seatNum <= show.getSeatsPerRow(); seatNum++) {
                 seats.add(row + String.valueOf(seatNum));
             }
@@ -109,7 +100,6 @@ public class Buyer {
     private List<String> getBookedSeats(Show show) {
         List<String> bookedSeats = new ArrayList<>();
 
-        // Implement logic to retrieve booked seats for the show
         for (Ticket ticket : show.getTickets()) {
             bookedSeats.addAll(ticket.getSeatLabels());
         }
