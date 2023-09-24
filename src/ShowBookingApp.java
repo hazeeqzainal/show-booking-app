@@ -104,6 +104,9 @@ public class ShowBookingApp {
                     buyer.bookSeats(show, phone, seatsPerRow);
                     break;
                 case "cancel":
+                    String ticketNumber = commandParts[1];
+                    String ticketPhone = commandParts[2];
+                    buyer.cancelBooking(shows, ticketNumber, ticketPhone);
                     break;
                 case "3":
                     return; // Return to the main menu

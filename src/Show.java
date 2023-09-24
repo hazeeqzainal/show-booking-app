@@ -59,4 +59,8 @@ public class Show {
         return cancellationWindow;
     }
 
+    public Map<String, Boolean> getSeatAvailability() {
+        return seatAvailability;
+    }
+
 }

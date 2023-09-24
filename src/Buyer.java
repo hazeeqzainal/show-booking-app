@@ -1,9 +1,6 @@
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Buyer {
@@ -13,6 +10,7 @@ public class Buyer {
         // Check if the show exists
         if (show == null) {
             System.out.println("Show not found.");
+            return;
         }
 
         System.out.println("Available seat numbers for Show " + show.getShowNumber() + ":");
@@ -32,22 +30,26 @@ public class Buyer {
         // Check if the show exists
         if (show == null) {
             System.out.println("Show not found.");
+            return;
         }
 
         List<String> seatLabelsToBook = getSeatsToBook(seatLabelsToBookParam);
 
         if (seatLabelsToBook == null) {
             System.out.println("Please enter your seats again..");
+            return;
         }
 
         // Check if the provided seat labels are valid and available
         for (String seatLabel : seatLabelsToBook) {
             if (!isValidSeatLabel(seatLabel)) {
                 System.out.println("Invalid seat label format: " + seatLabel);
+                return;
             }
 
             if (!isSeatAvailable(show, seatLabel)) {
                 System.out.println("Seat " + seatLabel + " is not available.");
+                return;
             }
         }
 
@@ -59,7 +61,7 @@ public class Buyer {
             String ticketNumber = generateTicketNumber();
 
             // Create a new ticket with the provided seat labels
-            Ticket ticket = new Ticket(ticketNumber, phone, seatLabelsToBook);
+            Ticket ticket = new Ticket(ticketNumber, show.getShowNumber(), phone, seatLabelsToBook);
 
             // Add the ticket to the show's list of tickets
             show.addTicket(ticket);
@@ -72,11 +74,72 @@ public class Buyer {
         }
     }
 
-    // Helper methods
-    public boolean cancelBooking(List<Show> shows, String ticketNumber, String phone) {
-        return false;
+    public void cancelBooking(List<Show> shows, String ticketNumber, String phone) {
+        for (Show show : shows) {
+            Map<String, Boolean> bookedSeats = show.getSeatAvailability();
+            Ticket ticketToFind = null;
+            for (Ticket ticket : show.getTickets()) {
+                if (ticket.getTicketNumber().equals(ticketNumber)) {
+                    ticketToFind = ticket;
+                }
+            }
+            if (show.getShowNumber() == ticketToFind.getShowNumber()) {
+                // Check if the ticket belongs to the provided phone number
+                if (!isTicketBelongsToPhone(show, ticketNumber, phone)) {
+                    continue; // Ticket does not match the provided phone number, continue to the next show
+                }
+
+                // Check if the cancellation window is still open (within 2 minutes)
+                if (!isCancellationWindowOpen(show, ticketNumber)) {
+                    continue; // Cancellation window has expired, continue to the next show
+                }
+
+                // Cancel the booking by marking the associated seats as available
+                List<String> seatLabels = new ArrayList<>();
+                for (Ticket ticket : show.getTickets()) {
+                    if (ticket.getTicketNumber() == ticketNumber) {
+                        seatLabels = ticket.getSeatLabels();
+                    }
+                }
+                for (String seatLabel : seatLabels) {
+                    bookedSeats.put(seatLabel, false); // Mark the seat as available
+                }
+                System.out.println("Your cancellation is successful.");
+                return; // Cancellation successful
+            }
+        }
+        System.out.println("Ticket not found.");
+        return; // Ticket not found in any of the shows
     }
 
+    // Helper methods
+    private boolean isTicketBelongsToPhone(Show show, String ticketNumber, String phone) {
+        for (Ticket ticket : show.getTickets()) {
+            if (ticket.getTicketNumber().equals(ticketNumber) && ticket.getBuyerPhone().equals(phone)) {
+                return true; // Ticket belongs to the provided phone number
+            }
+        }
+        return false; // Ticket does not belong to the provided phone number
+    }
+
+    private boolean isCancellationWindowOpen(Show show, String ticketNumber) {
+        for (Ticket ticket : show.getTickets()) {
+            if (ticket.getTicketNumber().equals(ticketNumber)) {
+                // Get the timestamp when the ticket was booked
+                long bookingTimestamp = ticket.getBookingTimestamp();
+
+                // Calculate the current time in milliseconds
+                long currentTimeMillis = System.currentTimeMillis();
+
+                // Calculate the difference in minutes
+                long minutesDifference = (currentTimeMillis - bookingTimestamp) / (1000 * 60);
+
+                // Check if the difference is within the cancellation window
+                return minutesDifference <= show.getCancellationWindow();
+            }
+        }
+        return false; // Ticket not found
+    }
     private List<String> getAvailableSeats(Show show) {
         List<String> allSeats = generateSeats(show);
         List<String> bookedSeats = getBookedSeats(show);
