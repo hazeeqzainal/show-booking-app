@@ -1,73 +1,93 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ShowBookingApp {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        List<Show> shows = new ArrayList<>();
         Admin admin = new Admin();
         Buyer buyer = new Buyer();
 
-        while (true) {
-            System.out.println("Enter your role (admin/buyer):");
-            String role = scanner.nextLine().trim().toLowerCase();
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
 
-            if ("admin".equals(role)) {
-                adminCmds(scanner, admin);
-            } else if ("buyer".equals(role)) {
-                buyerCmds(scanner, buyer);
-            } else if ("exit".equals(role)) {
-                System.exit(0);
-            } else {
-                System.out.println("Invalid role. Please enter 'admin', 'buyer' or 'exit.");
+        while (!exit) {
+            System.out.println("\nAre you an Admin or Buyer:");
+            System.out.println("1. Admin");
+            System.out.println("2. Buyer");
+            System.out.println("3. Exit");
+
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    // Handle Admin menu
+                    adminCmds(scanner, admin, shows);
+                    break;
+                case 2:
+                    // Handle Buyer menu
+                    buyerCmds(scanner, buyer);
+                    break;
+                case 3:
+                    exit = true; // Exit the program
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
+
+        scanner.close();
+        System.out.println("Exiting the application. Goodbye!");
     }
 
-    private static void adminCmds(Scanner scanner, Admin admin) {
-        while(true) {
-            System.out.println("Setup shows with: Setup <Show Number> <Number of Rows> <Number of seats per row> <Cancellation window in minutes>");
-            System.out.println("View shows with: View <Show Number>");
+    private static void adminCmds(Scanner scanner, Admin admin, List<Show> shows) {
+        // Implement the Admin menu options here
+        System.out.println("Admin menu placeholder.");
 
-            String input = scanner.nextLine().trim();
-            String[] parts = input.split(" ");
-            String command = parts[0].toLowerCase();
+        while (true) {
+            System.out.println("\nAdmin Menu:");
+            System.out.println("Setup or View shows e.g., 'Setup 1 10 5 120' or 'View 1'");
+            System.out.println("Enter 3 to return.");
 
-            switch (command) {
+            System.out.print("Enter your command: ");
+            String input = scanner.nextLine().toLowerCase();
+
+            String[] commandParts = input.split(" ");
+            String command = commandParts[0];
+
+            switch (command.toLowerCase()) {
                 case "setup":
-                    if (parts.length == 5) {
-                        try {
-                            int showNumber = Integer.parseInt(parts[1]);
-                            int numRows = Integer.parseInt(parts[2]);
-                            int seatsPerRow = Integer.parseInt(parts[3]);
-                            int cancellationWindow = Integer.parseInt(parts[4]);
-                            admin.setupShow(showNumber, numRows, seatsPerRow, cancellationWindow);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid input. Please use the format: 'Setup <Show Number> <Number of Rows> <Number of Seats per Row> <Cancellation Window in minutes>'");
-                        }
-                    } else {
-                        System.out.println("Invalid input. Please use the format: 'Setup <Show Number> <Number of Rows> <Number of Seats per Row> <Cancellation Window in minutes>'");
-                    }
+                    int showNumber = Integer.parseInt(commandParts[1]);
+                    int numRows = Integer.parseInt(commandParts[2]);
+                    int seatsPerRow = Integer.parseInt(commandParts[3]);
+                    int cancellationWindow = Integer.parseInt(commandParts[4]);
+                    admin.setupShow(shows, showNumber, numRows, seatsPerRow, cancellationWindow);
                     break;
                 case "view":
-                    if (parts.length == 2) {
-                        try {
-                            int showNumberToView = Integer.parseInt(parts[1]);
-                            admin.viewShow(showNumberToView);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid input. Please use the format: 'View <Show Number>'");
-                        }
-                    } else {
-                        System.out.println("Invalid input. Please use the format: 'View <Show Number>'");
-                    }
+                    Show show = findShowByNumber(shows, Integer.parseInt(commandParts[1]));
+                    admin.viewShow(show);
                     break;
-                case "exit":
-                    System.exit(0);
+                case "3":
+                    return; // Return to the main menu
                 default:
-                    System.out.println("Invalid command.");
+                    // Handle other commands or show an error message for invalid input
+                    System.out.println("Invalid command. Please try again.");
             }
         }
     }
 
     private static void buyerCmds(Scanner scanner, Buyer buyer) {
-        System.out.println("Check availability, book, or cancel (avail/book/cancel): ");
+        System.out.println("Buyer menu placeholder.");
+    }
+
+    private static Show findShowByNumber(List<Show> shows, int showNumber) {
+        for (Show show : shows) {
+            if (show.getShowNumber() == showNumber) {
+                return show;
+            }
+        }
+        return null;
     }
 }
