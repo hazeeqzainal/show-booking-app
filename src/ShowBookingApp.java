@@ -28,7 +28,7 @@ public class ShowBookingApp {
                     break;
                 case 2:
                     // Handle Buyer menu
-                    buyerCmds(scanner, buyer);
+                    buyerCmds(scanner, buyer, shows);
                     break;
                 case 3:
                     exit = true; // Exit the program
@@ -47,7 +47,7 @@ public class ShowBookingApp {
         System.out.println("Admin menu placeholder.");
 
         while (true) {
-            System.out.println("\nAdmin Menu:");
+            System.out.println("\nAdmin Commands:");
             System.out.println("Setup or View shows e.g., 'Setup 1 10 5 120' or 'View 1'");
             System.out.println("Enter 3 to return.");
 
@@ -78,8 +78,35 @@ public class ShowBookingApp {
         }
     }
 
-    private static void buyerCmds(Scanner scanner, Buyer buyer) {
-        System.out.println("Buyer menu placeholder.");
+    private static void buyerCmds(Scanner scanner, Buyer buyer, List<Show> shows) {
+        while (true) {
+            System.out.println("\nBuyer Commands:");
+            System.out.println("Availablility, Book, Cancel");
+            System.out.println("Enter 3 to return.");
+
+            System.out.print("Enter your command: ");
+            String input = scanner.nextLine().toLowerCase();
+
+            String[] commandParts = input.split(" ");
+            String command = commandParts[0];
+
+            switch (command.toLowerCase()) {
+                case "availability":
+                    int showNumber = Integer.parseInt(commandParts[1]);
+                    Show show = findShowByNumber(shows, showNumber);
+                    buyer.checkSeatAvailability(show);
+                    break;
+                case "book":
+                    break;
+                case "cancel":
+                    break;
+                case "3":
+                    return; // Return to the main menu
+                default:
+                    // Handle other commands or show an error message for invalid input
+                    System.out.println("Invalid command. Please try again.");
+            }
+        }
     }
 
     private static Show findShowByNumber(List<Show> shows, int showNumber) {
